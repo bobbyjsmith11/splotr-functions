@@ -1,5 +1,6 @@
-import splotr
+from splotr import network
 import json
+import os
 
 def hello_splotr(event, context):
     body = {
@@ -24,7 +25,7 @@ def hello_splotr(event, context):
 
     return response
 
-def callPlotSpars(event, context):
+def callGetLogMag(event, context):
     """
     """
     try:
@@ -35,8 +36,16 @@ def callPlotSpars(event, context):
             "input": event
         }
 
-    d_ret = d
-    # d_ret = some_function(d)
+    # ftemp = open("temp.s2p", "w")
+    # ftemp.write(d['raw_text'])
+    # ftemp.close
+    # fname = ftemp.name
+    # net = network.Network(fname)
+    # os.remove(fname)
+    # d_ret = {}
+    # d_ret['comments'] = net.comments 
+    
+    d_ret = d['raw_text']
     
     response = {
         "statusCode": 200,
