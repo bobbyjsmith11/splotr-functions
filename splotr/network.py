@@ -144,6 +144,7 @@ import warnings
 import sys
 import re
 import zipfile
+import io
 from copy import deepcopy as copy
 from numbers import Number
 from itertools import product
@@ -1386,6 +1387,61 @@ class Network(object):
         """
         from .import touchstone
         touchstoneFile = touchstone.Touchstone(filename)
+
+        if touchstoneFile.get_format().split()[1] != 's':
+            raise NotImplementedError('only s-parameters supported for now.')
+
+        self.comments = touchstoneFile.get_comments()
+        self.port_names = touchstoneFile.port_names
+
+        # set z0 before s so that y and z can be computed
+        if touchstoneFile.is_from_hfss():
+            self.gamma, self.z0 = touchstoneFile.get_gamma_z0()
+        else:
+            self.z0 = complex(touchstoneFile.resistance)
+        f, self.s = touchstoneFile.get_sparameter_arrays()  # note: freq in Hz
+        self.frequency = Frequency.from_f(f, unit='hz')
+        self.frequency.unit = touchstoneFile.frequency_unit
+
+        if self.name is None:
+            try:
+                self.name = os.path.basename(os.path.splitext(filename)[0])
+                # this may not work if filename is a file object
+            except(AttributeError, TypeError):
+                # in case they pass a file-object instead of file name,
+                # get the name from the touchstone file
+                try:
+                    self.name = os.path.basename(os.path.splitext(touchstoneFile.filename)[0])
+                except():
+                    print('warning: couldn\'t inspect network name')
+                    self.name = ''
+                pass
+                # TODO: add Network property `comments` which is read from
+                # touchstone file.
+
+    # touchstone file IO
+    def read_touchstone_string(self, filedata, filename):
+        """
+        loads values from a string read from touchstone file.
+
+        Parameters
+        ----------
+        filedata : str 
+            the entirety of the touchstone file in string format 
+        filename : str
+            touchstone file name.
+
+
+        Notes
+        ------
+        only the scattering parameters format is supported at the
+        moment
+
+        """
+        from .import touchstone
+        file_object = io.StringIO(filedata)
+        file_object.name = filename
+        touchstoneFile = touchstone.Touchstone(file_object)
 
         if touchstoneFile.get_format().split()[1] != 's':
             raise NotImplementedError('only s-parameters supported for now.')

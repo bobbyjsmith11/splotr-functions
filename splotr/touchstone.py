@@ -24,6 +24,7 @@ Functions related to reading/writing touchstones.
 
 import numpy as np
 from .import mathFunctions as mf
+from .util import get_fid
 
 class Touchstone:
     """
@@ -56,11 +57,14 @@ class Touchstone:
         >>> file = open('network.s2p')
         >>> t = rf.Touchstone(file)
         """
-        if isinstance(file, str):
-            fid = open(file, "r")
-        else:
-            fid = file
+        fid = get_fid(file)
         filename = fid.name
+        
+        # if isinstance(file, str):
+        #     fid = open(file, "r")
+        # else:
+        #     fid = file
+        # filename = fid.name
         ## file name of the touchstone data file
         self.filename = filename
 
