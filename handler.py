@@ -45,7 +45,7 @@ def callGetLogMag(event, context):
           }
     for j in range(net.nports):         # j is second port
         for k in range(net.nports):      # k is first port
-            d["s"+str(j+1)+str(k+1)+"db"] = net.s_db10[:,j,k].tolist()
+            d["s"+str(j+1)+str(k+1)+"db"] = net.s_db[:,j,k].tolist()
     
     response = {
         "statusCode": 200,
